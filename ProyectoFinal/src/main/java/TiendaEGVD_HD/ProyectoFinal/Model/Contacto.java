@@ -1,6 +1,6 @@
 package TiendaEGVD_HD.ProyectoFinal.Model;
 
-import com.miproyecto.ProyectoFinal.enums.EstadoContacto;
+import TiendaEGVD_HD.ProyectoFinal.enums.EstadoContacto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

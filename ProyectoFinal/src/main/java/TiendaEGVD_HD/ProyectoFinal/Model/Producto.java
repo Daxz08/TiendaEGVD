@@ -1,6 +1,7 @@
 package TiendaEGVD_HD.ProyectoFinal.Model;
 
-import com.miproyecto.ProyectoFinal.enums.EstadoProducto;
+
+import TiendaEGVD_HD.ProyectoFinal.enums.EstadoProducto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

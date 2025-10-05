@@ -1,6 +1,5 @@
 package TiendaEGVD_HD.ProyectoFinal.Model;
 
-import com.miproyecto.ProyectoFinal.validator.UniqueEmail;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -12,7 +11,6 @@ import java.util.*;
 
 @Entity
 @Table(name = "usuarios")
-@UniqueEmail
 public class Usuario implements UserDetails {
 
     @Id

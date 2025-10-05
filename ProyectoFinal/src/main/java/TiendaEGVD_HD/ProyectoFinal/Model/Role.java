@@ -1,6 +1,6 @@
 package TiendaEGVD_HD.ProyectoFinal.Model;
 
-import com.miproyecto.ProyectoFinal.enums.RoleName;
+import TiendaEGVD_HD.ProyectoFinal.enums.RoleName;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 

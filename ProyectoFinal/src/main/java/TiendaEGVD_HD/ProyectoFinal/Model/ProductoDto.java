@@ -1,6 +1,6 @@
 package TiendaEGVD_HD.ProyectoFinal.Model;
 
-import com.miproyecto.ProyectoFinal.enums.EstadoProducto;
+import TiendaEGVD_HD.ProyectoFinal.enums.EstadoProducto;
 import jakarta.validation.constraints.*;
 import org.springframework.web.multipart.MultipartFile;
 
