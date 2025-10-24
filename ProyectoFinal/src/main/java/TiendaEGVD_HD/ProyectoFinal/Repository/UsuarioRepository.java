@@ -1,6 +1,6 @@
 package TiendaEGVD_HD.ProyectoFinal.Repository;
 
-import com.miproyecto.ProyectoFinal.Model.Usuario;
+import TiendaEGVD_HD.ProyectoFinal.Model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

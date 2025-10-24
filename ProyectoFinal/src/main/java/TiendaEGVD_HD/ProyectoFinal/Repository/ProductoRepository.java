@@ -1,7 +1,8 @@
 package TiendaEGVD_HD.ProyectoFinal.Repository;
 
-import com.miproyecto.ProyectoFinal.Model.Producto;
-import com.miproyecto.ProyectoFinal.enums.EstadoProducto;
+
+import TiendaEGVD_HD.ProyectoFinal.Model.Producto;
+import TiendaEGVD_HD.ProyectoFinal.enums.EstadoProducto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

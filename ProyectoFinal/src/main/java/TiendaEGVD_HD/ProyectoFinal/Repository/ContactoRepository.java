@@ -1,7 +1,8 @@
 package TiendaEGVD_HD.ProyectoFinal.Repository;
 
-import com.miproyecto.ProyectoFinal.Model.Contacto;
-import com.miproyecto.ProyectoFinal.enums.EstadoContacto;
+
+import TiendaEGVD_HD.ProyectoFinal.Model.Contacto;
+import TiendaEGVD_HD.ProyectoFinal.enums.EstadoContacto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

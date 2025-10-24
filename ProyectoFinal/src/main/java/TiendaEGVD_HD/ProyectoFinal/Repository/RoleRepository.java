@@ -1,7 +1,8 @@
 package TiendaEGVD_HD.ProyectoFinal.Repository;
 
-import com.miproyecto.ProyectoFinal.Model.Role;
-import com.miproyecto.ProyectoFinal.enums.RoleName;
+
+import TiendaEGVD_HD.ProyectoFinal.Model.Role;
+import TiendaEGVD_HD.ProyectoFinal.enums.RoleName;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
