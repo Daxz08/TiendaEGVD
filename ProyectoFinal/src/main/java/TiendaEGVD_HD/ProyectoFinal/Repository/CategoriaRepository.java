@@ -13,6 +13,5 @@ public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
     // Para validar nombres únicos
     Optional<Categoria> findByNombre(String nombre);
 
-    // Búsqueda rápida
     List<Categoria> findByNombreContainingIgnoreCase(String nombre);
 }
