@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: common-head('Gestión de Productos')}">
+</head>
+<body>
+    <!-- Navbar -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Productos</h2>
+        
+        <div class="text-start mb-3">
+            <a th:href="@{/gestion-productos/nuevo}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Añadir Producto
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Imagen</th>
+                        <th>Nombre</th>
+                        <th>Proveedor</th>
+                        <th>Categoría</th>
+                        <th>Precio</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="producto : ${productos}">
+                        <td th:text="${producto.id_producto}"></td>
+                        <td>
+                            <img th:if="${producto.imagen}" th:src="@{/img/} + ${producto.imagen}" 
+                                 alt="Imagen producto" style="max-width: 50px;">
+                        </td>
+                        <td th:text="${producto.nombre}"></td>
+                        <td th:text="${producto.nombreProveedor}"></td>
+                        <td th:text="${producto.nombreCategoria}"></td>
+                        <td th:text="${#numbers.formatDecimal(producto.precio, 1, 2)}"></td>
+                        <td>
+                            <a th:href="@{/gestion-productos/editar/{id}(id=${producto.id_producto})}" 
+                               class="btn btn-sm btn-warning">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a th:href="@{/gestion-productos/eliminar/{id}(id=${producto.id_producto})}" 
+                               class="btn btn-sm btn-danger"
+                               onclick="return confirm('¿Estás seguro de eliminar este producto?')">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    
+    <!-- Scripts -->
+    <div th:replace="~{fragments/scripts :: common-scripts}"></div>
+</body>
+</html>

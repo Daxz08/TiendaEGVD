@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/head :: common-head('Catálogo de Productos')}"></head>
+<body>
+
+<style>
+    .producto-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .producto-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .producto-card .card {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        background: white;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .producto-card .card:hover {
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    .filtros-card {
+        border: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        border-radius: 12px;
+    }
+
+    .header-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        color: white;
+    }
+
+    .card-img-top-container {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .card-img-top-container img {
+        transition: transform 0.3s ease;
+    }
+
+    .card:hover .card-img-top-container img {
+        transform: scale(1.05);
+    }
+</style>
+
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <main class="py-5">
+        <!-- Header del catálogo -->
+
+        <div class="container">
+            <div class="mb-4">
+                <h1 class="display-6 fw-bold text-dark mb-2">Catálogo de Productos</h1>
+                <p class="text-muted">Descubre nuestra colección exclusiva</p>
+            </div>
+        </div>
+
+        <div class="container">
+
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card filtros-card">
+                        <div class="card-body">
+                            <div class="row align-items-end">
+                                <div class="col-md-4">
+                                    <label for="categoriaFilter" class="form-label fw-semibold">
+                                        <i class="bi bi-tags me-1 text-primary"></i>Filtrar por Categoría
+                                    </label>
+                                    <select id="categoriaFilter" class="form-select">
+                                        <option value="">Todas las categorías</option>
+                                        <option th:each="categoria : ${categorias}"
+                                                th:value="${categoria.id}"
+                                                th:text="${categoria.nombre}"></option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="busquedaFilter" class="form-label fw-semibold">
+                                        <i class="bi bi-search me-1 text-primary"></i>Buscar Producto
+                                    </label>
+                                    <input type="text" class="form-control" id="busquedaFilter"
+                                           placeholder="Escribe el nombre del producto...">
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="button" class="btn btn-outline-secondary w-100" onclick="limpiarFiltros()">
+                                        <i class="bi bi-arrow-clockwise me-1"></i>Limpiar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row" id="productosContainer">
+                <!-- Mensaje si no hay productos -->
+                <div th:if="${productos.empty}" class="col-12">
+                    <div class="alert alert-info text-center">
+                        <i class="bi bi-info-circle fs-1"></i>
+                        <h4>No hay productos disponibles</h4>
+                        <p>Pronto tendremos nuevos productos para ti.</p>
+                    </div>
+                </div>
+
+                <!-- Cards de productos -->
+                <div th:each="producto : ${productos}"
+                     class="col-lg-4 col-md-6 mb-4 producto-card"
+                     th:data-categoria="${producto.categoria.id}"
+                     th:data-precio="${producto.precio}"
+                     th:data-nombre="${producto.nombre}"
+                     th:data-descripcion="${producto.descripcion}"
+                     th:data-stock="${producto.stock}">
+                    <div class="card h-100 shadow-sm">
+                        <!-- Imagen del producto -->
+                        <div class="card-img-top-container" style="height: 250px; overflow: hidden;">
+                            <img th:if="${producto.imagenUrl}"
+                                 th:src="@{'/uploads/img/' + ${producto.imagenUrl}}"
+                                 class="card-img-top w-100 h-100"
+                                 style="object-fit: cover;"
+                                 th:alt="${producto.nombre}"
+                                 onerror="this.src='https://via.placeholder.com/300x250/6c757d/ffffff?text=Sin+Imagen';">
+                            <img th:unless="${producto.imagenUrl}"
+                                 src="https://via.placeholder.com/300x250/6c757d/ffffff?text=Sin+Imagen"
+                                 class="card-img-top w-100 h-100"
+                                 style="object-fit: cover;"
+                                 th:alt="${producto.nombre}">
+                        </div>
+
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title" th:text="${producto.nombre}">Nombre del Producto</h5>
+                            <p class="card-text text-muted small mb-2">
+                                <i class="bi bi-tag"></i>
+                                <span class="categoria-nombre" th:text="${producto.categoria.nombre}">Categoría</span>
+                            </p>
+
+                            <div class="mt-auto">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h4 class="text-primary mb-0">
+                                        S/ <span th:text="${#numbers.formatDecimal(producto.precio, 1, 2)}">0.00</span>
+                                    </h4>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-outline-primary btn-sm"
+                                                th:onclick="'verDetalle(' + ${producto.id} + ')'">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-primary btn-sm"
+                                                th:onclick="'agregarCarrito(' + ${producto.id} + ')'">
+                                            <i class="bi bi-cart-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal de Detalle del Producto -->
+    <div class="modal fade" id="detalleProductoModal" tabindex="-1" aria-labelledby="detalleProductoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="detalleProductoModalLabel">
+                        <i class="bi bi-info-circle me-2"></i>Detalles del Producto
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <img id="modalProductoImagen" src="" alt="" class="img-fluid rounded shadow-sm mb-3">
+                        </div>
+                        <div class="col-md-6">
+                            <h4 id="modalProductoNombre" class="text-primary mb-3"></h4>
+
+                            <div class="mb-3">
+                                <strong>Categoría:</strong>
+                                <span id="modalProductoCategoria" class="badge bg-secondary ms-2"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <strong>Precio:</strong>
+                                <span id="modalProductoPrecio" class="text-success fs-4 fw-bold ms-2"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <strong>Stock disponible:</strong>
+                                <span id="modalProductoStock" class="badge bg-info ms-2"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6 class="text-primary">
+                                <i class="bi bi-file-text me-2"></i>Descripción:
+                            </h6>
+                            <div class="bg-light p-3 rounded">
+                                <p id="modalProductoDescripcion" class="mb-0" style="text-align: justify; line-height: 1.6;"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i>Cerrar
+                    </button>
+                    <button type="button" id="modalBotonCarrito" class="btn btn-primary">
+                        <i class="bi bi-cart-plus me-1"></i>Agregar al Carrito
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/scripts :: common-scripts}"></div>
+
+    <!-- Script para filtros -->
+    <script>
+        // Filtro por categoría
+        document.getElementById('categoriaFilter').addEventListener('change', filtrarProductos);
+
+        // Filtro por búsqueda
+        document.getElementById('busquedaFilter').addEventListener('input', filtrarProductos);
+
+        function filtrarProductos() {
+            const categoriaSeleccionada = document.getElementById('categoriaFilter').value;
+            const busqueda = document.getElementById('busquedaFilter').value.toLowerCase();
+
+            const productos = document.querySelectorAll('.producto-card');
+
+            productos.forEach(producto => {
+                const categoria = producto.dataset.categoria;
+                const nombre = producto.dataset.nombre.toLowerCase();
+
+                let mostrar = true;
+
+                // Filtro por categoría
+                if (categoriaSeleccionada && categoria !== categoriaSeleccionada) {
+                    mostrar = false;
+                }
+
+                // Filtro por búsqueda
+                if (busqueda && !nombre.includes(busqueda)) {
+                    mostrar = false;
+                }
+
+                producto.style.display = mostrar ? 'block' : 'none';
+            });
+        }
+
+        function limpiarFiltros() {
+            document.getElementById('categoriaFilter').value = '';
+            document.getElementById('busquedaFilter').value = '';
+            filtrarProductos();
+        }
+
+        function verDetalle(id) {
+            // Buscar el producto por ID en los elementos
+            const productos = document.querySelectorAll('.producto-card');
+            let productoEncontrado = null;
+
+            productos.forEach(producto => {
+                const botonDetalle = producto.querySelector('button[onclick*="verDetalle(' + id + ')"]');
+                if (botonDetalle) {
+                    productoEncontrado = producto;
+                }
+            });
+
+            if (productoEncontrado) {
+                // Obtener datos del producto
+                const nombre = productoEncontrado.dataset.nombre;
+                const precio = productoEncontrado.dataset.precio;
+                const descripcion = productoEncontrado.dataset.descripcion || 'Sin descripción disponible';
+                const stock = productoEncontrado.dataset.stock || '0';
+                const imagenSrc = productoEncontrado.querySelector('img').src;
+                const categoria = productoEncontrado.querySelector('.categoria-nombre')?.textContent || 'Sin categoría';
+
+                // Llenar el modal con los datos
+                document.getElementById('modalProductoNombre').textContent = nombre;
+                document.getElementById('modalProductoPrecio').textContent = 'S/ ' + parseFloat(precio).toFixed(2);
+                document.getElementById('modalProductoCategoria').textContent = categoria;
+                document.getElementById('modalProductoDescripcion').textContent = descripcion;
+                document.getElementById('modalProductoStock').textContent = stock + ' unidades';
+                document.getElementById('modalProductoImagen').src = imagenSrc;
+                document.getElementById('modalProductoImagen').alt = nombre;
+
+                // Actualizar el botón de agregar al carrito con el ID correcto
+                const botonCarrito = document.getElementById('modalBotonCarrito');
+                botonCarrito.setAttribute('onclick', 'agregarCarrito(' + id + ')');
+
+                // Deshabilitar botón si no hay stock
+                if (parseInt(stock) <= 0) {
+                    botonCarrito.disabled = true;
+                    botonCarrito.innerHTML = '<i class="bi bi-x-circle me-1"></i>Sin Stock';
+                    botonCarrito.classList.remove('btn-primary');
+                    botonCarrito.classList.add('btn-danger');
+                } else {
+                    botonCarrito.disabled = false;
+                    botonCarrito.innerHTML = '<i class="bi bi-cart-plus me-1"></i>Agregar al Carrito';
+                    botonCarrito.classList.remove('btn-danger');
+                    botonCarrito.classList.add('btn-primary');
+                }
+
+                // Mostrar el modal
+                const modal = new bootstrap.Modal(document.getElementById('detalleProductoModal'));
+                modal.show();
+            } else {
+                console.error('Producto no encontrado con ID:', id);
+                alert('Error: No se pudo cargar la información del producto');
+            }
+        }
+
+        function agregarCarrito(id) {
+            // Crear formulario para agregar al carrito
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/carrito/agregar';
+
+            const inputProductoId = document.createElement('input');
+            inputProductoId.type = 'hidden';
+            inputProductoId.name = 'productoId';
+            inputProductoId.value = id;
+
+            const inputCantidad = document.createElement('input');
+            inputCantidad.type = 'hidden';
+            inputCantidad.name = 'cantidad';
+            inputCantidad.value = 1;
+
+            form.appendChild(inputProductoId);
+            form.appendChild(inputCantidad);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
+</body>
+</html>

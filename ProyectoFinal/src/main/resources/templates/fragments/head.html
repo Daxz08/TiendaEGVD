@@ -1,0 +1,56 @@
+<head th:fragment="common-head(title)" xmlns:th="http://www.w3.org/1999/xhtml">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' | EGVD Designs'"></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Estilos personalizados -->
+    <style>
+        .hero-section {
+            background-attachment: fixed !important;
+        }
+
+        .text-shadow {
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .hero-content {
+            animation: fadeInUp 1s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .carousel-item {
+            transition: transform 0.6s ease-in-out;
+        }
+
+        .carousel-indicators button {
+            background-color: #007bff;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .hero-section {
+                background-attachment: scroll !important;
+                height: calc(100vh - 56px) !important;
+            }
+
+            .display-1 {
+                font-size: 3rem !important;
+            }
+        }
+    </style>
+
+    <!-- CSS personalizado comentado temporalmente -->
+    <!-- <link rel="stylesheet" th:href="@{/css/style.css}"> -->
+</head>

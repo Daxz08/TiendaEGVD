@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: common-head('Gestión de Productos')}"></head>
+<body>
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container mt-5">
+  <h2 class="text-center mb-4">
+    <i class="bi bi-box"></i> Gestión de Productos
+  </h2>
+
+  <!-- Mensajes de éxito/error -->
+  <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <span th:text="${error}"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+
+  <div th:if="${exito}" class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle-fill"></i>
+    <span th:text="${exito}"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+
+  <div class="row">
+    <!-- Formulario de Registro/Edición -->
+    <div class="col-md-4">
+      <h3>
+        <i class="bi bi-plus-circle"></i> Nuevo Producto
+      </h3>
+
+      <form th:action="@{/admin/productos/guardar}"
+            th:object="${producto}" method="post" enctype="multipart/form-data">
+
+        <input type="hidden" th:field="*{id}">
+
+        <div class="mb-3">
+          <label class="form-label">Nombre</label>
+          <input type="text" th:field="*{nombre}" class="form-control" required>
+          <div class="text-danger" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Categoría</label>
+          <select th:field="*{categoriaId}" class="form-select" required>
+            <option value="">Selecciona una categoría</option>
+            <option th:each="c : ${categorias}" th:value="${c.id}" th:text="${c.nombre}"></option>
+          </select>
+          <div class="text-danger" th:if="${#fields.hasErrors('categoriaId')}" th:errors="*{categoriaId}"></div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Precio (S/)</label>
+          <input type="number" th:field="*{precio}" step="0.01" class="form-control" required min="0">
+          <div class="text-danger" th:if="${#fields.hasErrors('precio')}" th:errors="*{precio}"></div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Descripción</label>
+          <textarea th:field="*{descripcion}" class="form-control" rows="3" placeholder="Describe el producto..."></textarea>
+          <div class="text-danger" th:if="${#fields.hasErrors('descripcion')}" th:errors="*{descripcion}"></div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Stock</label>
+          <input type="number" th:field="*{stock}" class="form-control" min="0" placeholder="Cantidad disponible">
+          <div class="text-danger" th:if="${#fields.hasErrors('stock')}" th:errors="*{stock}"></div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Estado</label>
+          <select th:field="*{estado}" class="form-select">
+            <option th:each="estado : ${T(com.miproyecto.ProyectoFinal.enums.EstadoProducto).values()}"
+                    th:value="${estado}"
+                    th:text="${estado}"></option>
+          </select>
+          <small class="form-text text-muted">
+            <i class="bi bi-info-circle"></i>
+            El estado se cambia automáticamente a AGOTADO cuando el stock llega a 0
+          </small>
+          <div class="text-danger" th:if="${#fields.hasErrors('estado')}" th:errors="*{estado}"></div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Subir Imagen</label>
+          <input type="file" th:field="*{imagen}" class="form-control" accept="image/*">
+          <small class="form-text text-muted">Formatos permitidos: JPG, PNG, GIF</small>
+        </div>
+
+        <!-- Imagen actual se mostrará solo en modo edición -->
+
+        <button type="submit" class="btn btn-success">Guardar</button>
+        <a th:href="@{/admin/productos}" class="btn btn-outline-secondary">Cancelar</a>
+      </form>
+    </div>
+
+    <!-- Tabla de Productos -->
+    <div class="col-md-8">
+      <h3>Lista de Productos</h3>
+      <div class="table-responsive shadow rounded">
+        <table class="table table-hover align-middle">
+          <thead class="table-dark">
+          <tr>
+            <th>ID</th>
+            <th>Imagen</th>
+            <th>Nombre</th>
+            <th>Categoría</th>
+            <th>Precio</th>
+            <th>Stock</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="producto : ${productos}">
+            <td th:text="${producto.id}"></td>
+            <td>
+              <img th:if="${producto.imagenUrl}"
+                   th:src="@{'/uploads/img/' + ${producto.imagenUrl}}"
+                   class="img-thumbnail"
+                   style="max-width: 60px;"
+                   th:alt="${producto.nombre}"
+                   onerror="this.src='https://via.placeholder.com/60x60/6c757d/ffffff?text=Sin+Imagen';">
+              <span th:unless="${producto.imagenUrl}" class="text-muted">Sin imagen</span>
+            </td>
+            <td th:text="${producto.nombre}"></td>
+            <td th:text="${producto.categoria.nombre}"></td>
+            <td th:text="${'S/ ' + #numbers.formatDecimal(producto.precio, 1, 2)}"></td>
+            <td th:text="${producto.stock}"></td>
+            <td>
+              <span th:class="${'badge ' +
+                (producto.estado == T(com.miproyecto.ProyectoFinal.enums.EstadoProducto).DISPONIBLE ? 'bg-success' :
+                 producto.estado == T(com.miproyecto.ProyectoFinal.enums.EstadoProducto).AGOTADO ? 'bg-warning text-dark' :
+                 producto.estado == T(com.miproyecto.ProyectoFinal.enums.EstadoProducto).DESCONTINUADO ? 'bg-danger' : 'bg-secondary')}"
+                    th:text="${producto.estado}"></span>
+            </td>
+            <td>
+              <div class="btn-group">
+                <a th:href="@{/admin/productos/editar/{id}(id=${producto.id})}" class="btn btn-warning btn-sm">
+                  <i class="bi bi-pencil-square"></i> Editar
+                </a>
+                <a th:href="@{/admin/productos/eliminar/{id}(id=${producto.id})}" class="btn btn-danger btn-sm"
+                   onclick="return confirm('¿Eliminar este producto permanentemente?')">
+                  <i class="bi bi-trash"></i> Eliminar
+                </a>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+<div th:replace="~{fragments/scripts :: common-scripts}"></div>
+</body>
+</html>

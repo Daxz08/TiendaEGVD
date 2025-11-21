@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: common-head('Contacto')}"></head>
+<body style="background-image: url('../img/111.png'); background-size: cover; background-position: center;">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 bg-white rounded shadow p-4">
+            <!-- Título -->
+            <h1 class="text-center mb-4" style="color: #333;">Contáctanos</h1>
+
+            <!-- Formulario de contacto -->
+            <form th:action="@{/contacto}" method="post" th:object="${contacto}">
+                <div class="row">
+                    <!-- Columna izquierda -->
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">Nombre completo</label>
+                            <input type="text" class="form-control" id="nombre" th:field="*{nombre}" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Correo electrónico</label>
+                            <input type="email" class="form-control" id="email" th:field="*{email}" onblur="autocompletarDatos()" required >
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="telefono" class="form-label">Teléfono</label>
+                            <input type="tel" class="form-control" id="telefono" th:field="*{telefono}" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="pais" class="form-label">País</label>
+                            <select class="form-select" id="pais" th:field="*{pais}">
+                                <option value="">Seleccione...</option>
+                                <option value="Perú">Perú</option>
+                                <option value="Colombia">Colombia</option>
+                                <option value="México">México</option>
+                                <option value="España">España</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Columna derecha -->
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="asunto" class="form-label">Asunto</label>
+                            <select class="form-select" id="asunto" th:field="*{asunto}">
+                                <option value="">Seleccione...</option>
+                                <option value="Consulta">Consulta general</option>
+                                <option value="Pedido">Información de pedidos</option>
+                                <option value="Devolución">Devoluciones</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="mensaje" class="form-label">Mensaje</label>
+                            <textarea class="form-control" id="mensaje" th:field="*{mensaje}" rows="5" required></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary px-4 py-2">
+                        <i class="bi bi-send-fill me-2"></i> Enviar mensaje
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sección de información de contacto -->
+    <div class="row justify-content-center mt-5">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow">
+                <div class="card-body p-4">
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-4 mb-md-0">
+                            <i class="bi bi-geo-alt-fill text-primary fs-1"></i>
+                            <h5 class="mt-2">Dirección</h5>
+                            <p class="mb-0">Jr. Próspero 824<br>Iquitos, Perú</p>
+                        </div>
+
+                        <div class="col-md-4 text-center mb-4 mb-md-0">
+                            <i class="bi bi-telephone-fill text-primary fs-1"></i>
+                            <h5 class="mt-2">Teléfono</h5>
+                            <p class="mb-0">+51 989 198 310<br>Lunes a Viernes: 9am - 6pm</p>
+                        </div>
+
+                        <div class="col-md-4 text-center">
+                            <i class="bi bi-envelope-fill text-primary fs-1"></i>
+                            <h5 class="mt-2">Correo</h5>
+                            <p class="mb-0">contacto@egvd.com<br>ventas@egvd.com</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+    function autocompletarDatos() {
+      const email = document.getElementById("email").value;
+      fetch(`/admin/usuarios/buscar-por-email?email=${email}`)
+        .then(response => response.json())
+        .then(usuario => {
+          if (usuario) {
+            document.getElementById("nombre").value = usuario.nombre || '';
+            document.getElementById("telefono").value = usuario.celular || '';
+          }
+        });
+    }
+</script>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- Scripts -->
+<div th:replace="~{fragments/scripts :: common-scripts}"></div>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/head :: common-head('Detalle del Pedido')}"></head>
+<body>
+
+<style>
+    .pedido-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        color: white;
+    }
+    
+    .producto-item {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .producto-item:hover {
+        transform: translateY(-2px);
+    }
+    
+    .estado-badge {
+        font-size: 1.1em;
+        padding: 0.7em 1.2em;
+        border-radius: 25px;
+    }
+    
+    .info-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        border-left: 4px solid #007bff;
+    }
+</style>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header del pedido -->
+            <div class="pedido-header p-4 mb-4">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h2 class="mb-2">
+                            <i class="bi bi-receipt me-2"></i>Pedido #<span th:text="${pedido.id}"></span>
+                        </h2>
+                        <p class="mb-0">
+                            <i class="bi bi-calendar me-1"></i>
+                            Realizado el <span th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy')}"></span>
+                            a las <span th:text="${#temporals.format(pedido.fechaPedido, 'HH:mm')}"></span>
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <span th:class="${'badge estado-badge ' + 
+                            (pedido.estado == T(com.miproyecto.ProyectoFinal.enums.EstadoPedido).PENDIENTE ? 'bg-warning text-dark' :
+                             pedido.estado == T(com.miproyecto.ProyectoFinal.enums.EstadoPedido).CONFIRMADO ? 'bg-info' :
+                             pedido.estado == T(com.miproyecto.ProyectoFinal.enums.EstadoPedido).ENVIADO ? 'bg-primary' :
+                             pedido.estado == T(com.miproyecto.ProyectoFinal.enums.EstadoPedido).ENTREGADO ? 'bg-success' :
+                             pedido.estado == T(com.miproyecto.ProyectoFinal.enums.EstadoPedido).CANCELADO ? 'bg-danger' : 'bg-secondary')}"
+                              th:text="${pedido.estado}"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navegación -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin/pedidos">Gestión de Pedidos</a></li>
+                    <li class="breadcrumb-item active">Pedido #<span th:text="${pedido.id}"></span></li>
+                </ol>
+            </nav>
+
+            <div class="row">
+                <!-- Información del cliente -->
+                <div class="col-lg-4 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0">
+                                <i class="bi bi-person me-2"></i>Información del Cliente
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Usuario:</strong> <span th:text="${pedido.usuario.username}"></span></p>
+                            <p><strong>Email:</strong> <span th:text="${pedido.usuario.email}"></span></p>
+                            <p><strong>Nombre:</strong> 
+                                <span th:text="${pedido.usuario.nombre ?: 'No especificado'}"></span>
+                            </p>
+                            <p><strong>Apellido:</strong> 
+                                <span th:text="${pedido.usuario.apellido ?: 'No especificado'}"></span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Resumen del pedido -->
+                    <div class="card mt-4">
+                        <div class="card-header bg-success text-white">
+                            <h6 class="mb-0">
+                                <i class="bi bi-calculator me-2"></i>Resumen del Pedido
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-card p-3 mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span>ID del Pedido:</span>
+                                    <strong>#<span th:text="${pedido.id}"></span></strong>
+                                </div>
+                            </div>
+
+                            <div class="info-card p-3 mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span>Fecha del Pedido:</span>
+                                    <span th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy HH:mm')}"></span>
+                                </div>
+                            </div>
+
+                            <div class="info-card p-3 mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span>Cantidad de Productos:</span>
+                                    <span th:text="${pedido.detalles.size()} + ' items'"></span>
+                                </div>
+                            </div>
+
+                            <div class="info-card p-3 mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span>Fecha de Entrega:</span>
+                                    <span th:if="${pedido.fechaEntrega}" th:text="${#temporals.format(pedido.fechaEntrega, 'dd/MM/yyyy')}"></span>
+                                    <span th:unless="${pedido.fechaEntrega}" class="text-muted">Por definir</span>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong>Total del Pedido:</strong>
+                                <h4 class="text-success mb-0">
+                                    S/ <span th:text="${#numbers.formatDecimal(pedido.total, 1, 2)}"></span>
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de productos -->
+                <div class="col-lg-8">
+                    <h5 class="mb-3">
+                        <i class="bi bi-box me-2"></i>Productos del Pedido
+                    </h5>
+
+                    <div th:each="detalle : ${pedido.detalles}" class="producto-item p-3 mb-3">
+                        <div class="row align-items-center">
+                            <!-- Imagen del producto -->
+                            <div class="col-md-2">
+                                <img th:if="${detalle.producto.imagenUrl}" 
+                                     th:src="@{'/uploads/img/' + ${detalle.producto.imagenUrl}}"
+                                     class="img-fluid rounded" 
+                                     th:alt="${detalle.producto.nombre}"
+                                     style="max-height: 80px;">
+                                <div th:unless="${detalle.producto.imagenUrl}" 
+                                     class="bg-light rounded d-flex align-items-center justify-content-center"
+                                     style="height: 80px;">
+                                    <i class="bi bi-image text-muted"></i>
+                                </div>
+                            </div>
+
+                            <!-- Información del producto -->
+                            <div class="col-md-5">
+                                <h6 class="mb-1" th:text="${detalle.producto.nombre}"></h6>
+                                <p class="text-muted mb-1" th:text="${detalle.producto.categoria.nombre}"></p>
+                                <small class="text-success">
+                                    Precio unitario: S/ <span th:text="${#numbers.formatDecimal(detalle.precioUnitario, 1, 2)}"></span>
+                                </small>
+                            </div>
+
+                            <!-- Cantidad -->
+                            <div class="col-md-2 text-center">
+                                <span class="badge bg-secondary fs-6">
+                                    Cantidad: <span th:text="${detalle.cantidad}"></span>
+                                </span>
+                            </div>
+
+                            <!-- Subtotal -->
+                            <div class="col-md-3 text-end">
+                                <h6 class="text-primary mb-0">
+                                    S/ <span th:text="${#numbers.formatDecimal(detalle.subtotal, 1, 2)}"></span>
+                                </h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="/admin/pedidos" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Volver a Pedidos
+                        </a>
+                        
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                                <i class="bi bi-gear me-1"></i>Cambiar Estado
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><h6 class="dropdown-header">Cambiar Estado del Pedido</h6></li>
+                                <li><a class="dropdown-item" href="#" onclick="cambiarEstado('PENDIENTE')">
+                                    <span class="badge bg-warning text-dark me-2">PENDIENTE</span>
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="cambiarEstado('CONFIRMADO')">
+                                    <span class="badge bg-info me-2">CONFIRMADO</span>
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="cambiarEstado('ENVIADO')">
+                                    <span class="badge bg-primary me-2">ENVIADO</span>
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="cambiarEstado('ENTREGADO')">
+                                    <span class="badge bg-success me-2">ENTREGADO</span>
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#" onclick="cambiarEstado('CANCELADO')">
+                                    <span class="badge bg-danger me-2">CANCELADO</span>
+                                </a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- Scripts -->
+<div th:replace="~{fragments/scripts :: common-scripts}"></div>
+
+<script>
+    function cambiarEstado(nuevoEstado) {
+        const pedidoId = [[${pedido.id}]];
+        if (confirm('¿Estás seguro de cambiar el estado del pedido #' + pedidoId + ' a ' + nuevoEstado + '?')) {
+            // Aquí puedes implementar la funcionalidad para cambiar el estado
+            // Por ahora solo mostramos un mensaje
+            alert('Funcionalidad de cambio de estado pendiente de implementar');
+        }
+    }
+</script>
+
+</body>
+</html>

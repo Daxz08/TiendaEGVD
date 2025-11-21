@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/head :: common-head('Detalle del Contacto')}"></head>
+<body>
+
+<style>
+    .info-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        color: white;
+    }
+    
+    .mensaje-completo {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        border-left: 4px solid #007bff;
+        line-height: 1.6;
+    }
+    
+    .estado-badge {
+        font-size: 1.1em;
+        padding: 0.7em 1.2em;
+        border-radius: 25px;
+    }
+</style>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2><i class="bi bi-envelope-open me-2"></i>Detalle del Contacto</h2>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/admin/contactos">Contactos</a></li>
+                            <li class="breadcrumb-item active">Detalle #<span th:text="${contacto.id}"></span></li>
+                        </ol>
+                    </nav>
+                </div>
+                <a href="/admin/contactos" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Volver
+                </a>
+            </div>
+
+            <div class="row">
+                <!-- Información del Contacto -->
+                <div class="col-md-8">
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-person-fill me-2"></i>Información del Contacto</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Nombre:</strong> <span th:text="${contacto.nombre}"></span></p>
+                                    <p><strong>Email:</strong> <span th:text="${contacto.email}"></span></p>
+                                    <p><strong>Teléfono:</strong> 
+                                        <span th:text="${contacto.telefono ?: 'No proporcionado'}"></span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>País:</strong> 
+                                        <span th:text="${contacto.pais ?: 'No especificado'}"></span>
+                                    </p>
+                                    <p><strong>Fecha:</strong> 
+                                        <span th:text="${#temporals.format(contacto.fechaHoraMensaje, 'dd/MM/yyyy HH:mm')}"></span>
+                                    </p>
+                                    <p><strong>Usuario registrado:</strong>
+                                        <span th:if="${contacto.usuario}" th:text="${contacto.usuario.username}"></span>
+                                        <span th:unless="${contacto.usuario}" class="text-muted">No registrado</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Asunto y Mensaje -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="bi bi-chat-text me-2"></i>Mensaje</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <strong>Asunto:</strong>
+                                <p class="mt-2" th:text="${contacto.asunto ?: 'Sin asunto especificado'}"></p>
+                            </div>
+                            
+                            <div>
+                                <strong>Mensaje:</strong>
+                                <div class="mensaje-completo mt-2" th:text="${contacto.mensaje}"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Producto relacionado (si existe) -->
+                    <div th:if="${contacto.producto}" class="card mb-4">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0"><i class="bi bi-box me-2"></i>Producto Relacionado</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-3">
+                                    <img th:if="${contacto.producto.imagenUrl}" 
+                                         th:src="@{'/uploads/img/' + ${contacto.producto.imagenUrl}}"
+                                         class="img-fluid rounded" 
+                                         th:alt="${contacto.producto.nombre}">
+                                </div>
+                                <div class="col-md-9">
+                                    <h6 th:text="${contacto.producto.nombre}"></h6>
+                                    <p class="text-muted mb-1" th:text="${contacto.producto.categoria.nombre}"></p>
+                                    <p class="text-success fw-bold" th:text="${'S/ ' + #numbers.formatDecimal(contacto.producto.precio, 1, 2)}"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel de Acciones -->
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0"><i class="bi bi-gear me-2"></i>Gestión</h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Estado actual -->
+                            <div class="text-center mb-4">
+                                <p class="mb-2"><strong>Estado Actual:</strong></p>
+                                <span th:class="${'badge estado-badge ' + 
+                                    (contacto.estado == T(com.miproyecto.ProyectoFinal.enums.EstadoContacto).PENDIENTE ? 'bg-warning' :
+                                     contacto.estado == T(com.miproyecto.ProyectoFinal.enums.EstadoContacto).EN_PROCESO ? 'bg-info' :
+                                     contacto.estado == T(com.miproyecto.ProyectoFinal.enums.EstadoContacto).RESPONDIDO ? 'bg-success' : 'bg-secondary')}"
+                                      th:text="${contacto.estado}"></span>
+                            </div>
+
+                            <!-- Cambiar estado -->
+                            <div class="mb-4">
+                                <label class="form-label"><strong>Cambiar Estado:</strong></label>
+                                <form th:action="@{/admin/contactos/{id}/cambiar-estado(id=${contacto.id})}" method="post">
+                                    <div class="input-group">
+                                        <select name="nuevoEstado" class="form-select">
+                                            <option th:each="estado : ${estados}" 
+                                                    th:value="${estado}" 
+                                                    th:text="${estado}"
+                                                    th:selected="${contacto.estado == estado}"></option>
+                                        </select>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bi bi-check me-1"></i>Actualizar
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- Acciones rápidas -->
+                            <div class="d-grid gap-2">
+                                <a th:href="@{'mailto:' + ${contacto.email}}" class="btn btn-outline-primary">
+                                    <i class="bi bi-envelope me-1"></i>Responder por Email
+                                </a>
+                                
+                                <a th:if="${contacto.telefono}" 
+                                   th:href="@{'tel:' + ${contacto.telefono}}" 
+                                   class="btn btn-outline-success">
+                                    <i class="bi bi-telephone me-1"></i>Llamar
+                                </a>
+                                
+                                <form th:action="@{/admin/contactos/{id}/eliminar(id=${contacto.id})}" 
+                                      method="post" 
+                                      onsubmit="return confirm('¿Estás seguro de eliminar este contacto?')">
+                                    <button type="submit" class="btn btn-outline-danger w-100">
+                                        <i class="bi bi-trash me-1"></i>Eliminar Contacto
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información adicional -->
+                    <div class="info-card p-3 mt-4 text-center">
+                        <i class="bi bi-info-circle fs-1"></i>
+                        <h6 class="mt-2">ID del Contacto</h6>
+                        <h4 th:text="${contacto.id}"></h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- Scripts -->
+<div th:replace="~{fragments/scripts :: common-scripts}"></div>
+
+</body>
+</html>

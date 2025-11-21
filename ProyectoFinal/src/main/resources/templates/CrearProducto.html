@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: common-head('Añadir Producto')}">
+</head>
+<body>
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-8 offset-md-2">
+      <h2 class="mb-4">Añadir Nuevo Producto</h2>
+
+      <form th:action="${id != null} ? @{/gestion-productos/editar/{id}(id=${id})} : @{/gestion-productos/guardar}"
+            th:object="${productoDto}"
+            method="post"
+            enctype="multipart/form-data">
+
+      <div class="mb-3">
+          <label for="nombre" class="form-label">Nombre del Producto</label>
+          <input type="text" class="form-control" id="nombre" th:field="*{nombre}">
+          <div class="text-danger" th:if="${#fields.hasErrors('nombre')}"
+               th:errors="*{nombre}"></div>
+        </div>
+
+        <div class="mb-3">
+          <label for="nombreProveedor" class="form-label">Proveedor</label>
+          <input type="text" class="form-control" id="nombreProveedor"
+                 th:field="*{nombreProveedor}">
+          <div class="text-danger" th:if="${#fields.hasErrors('nombreProveedor')}"
+               th:errors="*{nombreProveedor}"></div>
+        </div>
+
+        <div class="mb-3">
+          <label for="nombreCategoria" class="form-label">Categoría</label>
+          <input type="text" class="form-control" id="nombreCategoria"
+                 th:field="*{nombreCategoria}">
+          <div class="text-danger" th:if="${#fields.hasErrors('nombreCategoria')}"
+               th:errors="*{nombreCategoria}"></div>
+        </div>
+
+        <div class="mb-3">
+          <label for="precio" class="form-label">Precio</label>
+          <input type="number" class="form-control" id="precio"
+                 th:field="*{precio}" step="0.01">
+          <div class="text-danger" th:if="${#fields.hasErrors('precio')}"
+               th:errors="*{precio}"></div>
+        </div>
+
+        <div class="mb-3">
+          <label for="descripcion" class="form-label">Descripción</label>
+          <textarea class="form-control" id="descripcion"
+                    th:field="*{descripcion}" rows="3"></textarea>
+          <div class="text-danger" th:if="${#fields.hasErrors('descripcion')}"
+               th:errors="*{descripcion}"></div>
+        </div>
+        <div class="mb-3">
+          <label for="imageFile" class="form-label">Imagen del Producto</label>
+          <input type="file" class="form-control" id="imageFile"
+                 th:field="*{imageFile}" accept="image/*">
+          <div id="imagePreviewContainer" class="mt-2">
+            <img th:if="${imagenActual != null}" th:src="@{/img/} + ${imagenActual}"
+                 alt="Imagen actual" style="max-width: 200px;" class="img-thumbnail">
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-save"></i>
+            <span th:text="${id != null} ? 'Actualizar Producto' : 'Guardar Producto'"></span>
+          </button>
+          <a th:href="@{/gestion-productos}" class="btn btn-secondary">
+            <i class="bi bi-x-circle"></i> Cancelar
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- Modals -->
+<div th:replace="~{fragments/modals :: modals}"></div>
+
+<!-- Scripts -->
+<div th:replace="~{fragments/scripts :: common-scripts}"></div>
+
+<!-- Script para preview de imagen -->
+<script>
+  document.getElementById('imageFile').addEventListener('change', function(e) {
+      if (this.files && this.files[0]) {
+          let reader = new FileReader();
+          reader.onload = function(e) {
+              let previewContainer = document.getElementById('imagePreviewContainer');
+              previewContainer.innerHTML = '';
+              let preview = document.createElement('img');
+              preview.src = e.target.result;
+              preview.style.maxWidth = '200px';
+              preview.className = 'img-thumbnail';
+              previewContainer.appendChild(preview);
+          }
+          reader.readAsDataURL(this.files[0]);
+      }
+  });
+</script>
+</body>
+</html>

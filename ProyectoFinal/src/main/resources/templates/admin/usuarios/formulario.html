@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: common-head('Gestión de Usuarios')}"></head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Gestión de Usuarios</h2>
+
+    <!-- Formulario de Registro/Edición -->
+    <div class="row">
+        <div class="col-md-4">
+            <h3 th:text="${usuario.id != null} ? 'Editar Usuario' : 'Nuevo Usuario'"></h3>
+
+            <form th:action="@{${usuario.id != null} ? '/admin/usuarios/editar/' + ${usuario.id} : '/admin/usuarios/guardar'}"
+                  th:object="${usuario}" method="post">
+
+                <input type="hidden" th:field="*{id}">
+
+                <div class="mb-3">
+                    <label for="username" class="form-label">Nombre de Usuario</label>
+                    <input type="text" id="username" th:field="*{username}" class="form-control" required>
+                    <div class="text-danger" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="nombre" class="form-label">Nombre</label>
+                    <input type="text" id="nombre" th:field="*{nombre}" class="form-control" required>
+                    <div class="text-danger" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" id="email" th:field="*{email}" class="form-control" required>
+                    <div class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="celular" class="form-label">Celular</label>
+                    <input type="text" id="celular" th:field="*{celular}" class="form-control" pattern="[0-9]{9}" required>
+                    <div class="text-danger" th:if="${#fields.hasErrors('celular')}" th:errors="*{celular}"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label">Contraseña</label>
+                    <input type="password" id="password" th:field="*{password}" class="form-control" required>
+                    <div class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Guardar</button>
+
+                <a th:if="${usuario.id != null}" th:href="@{/admin/usuarios/nuevo}" class="btn btn-secondary">Cancelar</a>
+            </form>
+        </div>
+
+        <!-- Tabla de Usuarios -->
+        <div class="col-md-8">
+            <h3>Lista de Usuarios</h3>
+            <table class="table table-striped">
+                <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Celular</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user : ${usuarios}">
+                    <td th:text="${user.id}"></td>
+                    <td th:text="${user.username}"></td>
+                    <td th:text="${user.nombre}"></td>
+                    <td th:text="${user.email}"></td>
+                    <td th:text="${user.celular}"></td>
+                    <td>
+                        <a th:href="@{/admin/usuarios/editar/{id}(id=${user.id})}" class="btn btn-warning btn-sm">
+                            <i class="bi bi-pencil"></i> Editar
+                        </a>
+                        <a th:href="@{/admin/usuarios/eliminar/{id}(id=${user.id})}" class="btn btn-danger btn-sm"
+                           onclick="return confirm('¿Eliminar este usuario?')">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

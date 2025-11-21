@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: common-head('Formulario de Producto')}"></head>
+<body>
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow">
+        <div class="card-header bg-dark text-white">
+          <h3 class="mb-0" th:text="${producto.id != null} ? 'Editar Producto' : 'Nuevo Producto'"></h3>
+        </div>
+
+        <div class="card-body">
+          <form th:action="@{${producto.id != null} ? '/admin/productos/editar/' + ${producto.id} : '/admin/productos/guardar'}"
+                th:object="${producto}"
+                method="post"
+                enctype="multipart/form-data">
+
+            <!-- Sección 1: Información Básica -->
+            <div class="mb-4">
+              <h5 class="border-bottom pb-2">Información del Producto</h5>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Nombre</label>
+                  <input type="text" th:field="*{nombre}" class="form-control" required>
+                  <div class="invalid-feedback" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Categoría</label>
+                  <select th:field="*{categoria.id}" class="form-select" required>
+                    <option th:each="c : ${categorias}"
+                            th:value="${c.id}"
+                            th:text="${c.nombre}"
+                            th:selected="${producto.categoria != null && producto.categoria.id == c.id}">
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Precio (S/)</label>
+                  <input type="number" th:field="*{precio}" step="0.01" class="form-control" required>
+                </div>
+
+
+              <div class="mb-3">
+                <label class="form-label">Descripción</label>
+                <textarea th:field="*{descripcion}" class="form-control" rows="3"></textarea>
+              </div>
+            </div>
+
+            <!-- Sección 2: Imagen -->
+            <div class="mb-4">
+              <h5 class="border-bottom pb-2">Imagen del Producto</h5>
+              <div class="mb-3">
+                <label class="form-label">Subir imagen</label>
+                <input type="file" class="form-control" name="imagenFile" accept="image/*">
+              </div>
+              <div th:if="${producto.imagenUrl != null}" class="text-center">
+                <img th:src="@{/img/} + ${producto.imagenUrl}"
+                     class="img-thumbnail"
+                     style="max-height: 200px;">
+                <p class="text-muted mt-2">Imagen actual</p>
+              </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="d-flex justify-content-between">
+              <button type="submit" class="btn btn-success">
+                <i class="bi bi-save"></i> Guardar
+              </button>
+              <a th:href="@{/admin/productos}" class="btn btn-outline-secondary">
+                <i class="bi bi-x-circle"></i> Cancelar
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- Scripts -->
+<div th:replace="~{fragments/scripts :: common-scripts}"></div>
+
+<!-- Script para preview de imagen -->
+<script>
+  document.querySelector('input[name="imagenFile"]').addEventListener('change', function(e) {
+      if (this.files && this.files[0]) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+              const previewContainer = document.createElement('div');
+              previewContainer.className = 'text-center mt-3';
+              previewContainer.innerHTML = `
+                  <img src="${e.target.result}" class="img-thumbnail" style="max-height: 200px;">
+                  <p class="text-muted mt-2">Vista previa</p>
+              `;
+              document.querySelector('input[name="imagenFile"]').parentNode.appendChild(previewContainer);
+          };
+          reader.readAsDataURL(this.files[0]);
+      }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/head :: common-head('Gestión de Contactos')}"></head>
+<body>
+
+<style>
+    .stats-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        color: white;
+        transition: transform 0.3s ease;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .badge-estado {
+        font-size: 0.8em;
+        padding: 0.5em 0.8em;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .mensaje-card {
+        max-height: 100px;
+        overflow-y: auto;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 10px;
+        font-size: 0.9em;
+    }
+</style>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="bi bi-envelope-fill me-2"></i>Gestión de Contactos</h2>
+            </div>
+
+            <!-- Mensajes de éxito/error -->
+            <div th:if="${mensaje}" 
+                 th:class="${'alert alert-' + (tipoMensaje == 'success' ? 'success' : 'danger') + ' alert-dismissible fade show'}" 
+                 role="alert">
+                <span th:text="${mensaje}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="stats-card p-3 text-center">
+                        <i class="bi bi-envelope fs-1"></i>
+                        <h4 th:text="${totalContactos}">0</h4>
+                        <p class="mb-0">Total Contactos</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card p-3 text-center" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        <i class="bi bi-clock fs-1"></i>
+                        <h4 th:text="${pendientes}">0</h4>
+                        <p class="mb-0">Pendientes</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card p-3 text-center" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                        <i class="bi bi-gear fs-1"></i>
+                        <h4 th:text="${enProceso}">0</h4>
+                        <p class="mb-0">En Proceso</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card p-3 text-center" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                        <i class="bi bi-check-circle fs-1"></i>
+                        <h4 th:text="${respondidos}">0</h4>
+                        <p class="mb-0">Respondidos</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-funnel me-2"></i>Filtros</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <form method="get" action="/admin/contactos">
+                                <div class="input-group">
+                                    <select name="estado" class="form-select">
+                                        <option value="">Todos los estados</option>
+                                        <option th:each="estado : ${estados}" 
+                                                th:value="${estado}" 
+                                                th:text="${estado}"
+                                                th:selected="${estadoFiltro == estado}"></option>
+                                    </select>
+                                    <button class="btn btn-primary" type="submit">
+                                        <i class="bi bi-search me-1"></i>Filtrar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <a href="/admin/contactos" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-clockwise me-1"></i>Limpiar Filtros
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Contactos -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Fecha</th>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Asunto</th>
+                                    <th>Mensaje</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="contacto : ${contactos}">
+                                    <td>
+                                        <span class="badge bg-secondary" th:text="${contacto.id}"></span>
+                                    </td>
+                                    <td>
+                                        <small th:text="${#temporals.format(contacto.fechaHoraMensaje, 'dd/MM/yyyy HH:mm')}"></small>
+                                    </td>
+                                    <td>
+                                        <strong th:text="${contacto.nombre}"></strong>
+                                        <br>
+                                        <small class="text-muted" th:if="${contacto.telefono}" th:text="${contacto.telefono}"></small>
+                                    </td>
+                                    <td>
+                                        <small th:text="${contacto.email}"></small>
+                                        <br>
+                                        <small class="text-muted" th:if="${contacto.pais}" th:text="${contacto.pais}"></small>
+                                    </td>
+                                    <td>
+                                        <span th:text="${contacto.asunto ?: 'Sin asunto'}"></span>
+                                    </td>
+                                    <td>
+                                        <div class="mensaje-card" th:text="${contacto.mensaje}"></div>
+                                    </td>
+                                    <td>
+                                        <span th:class="${'badge badge-estado ' + 
+                                            (contacto.estado == T(com.miproyecto.ProyectoFinal.enums.EstadoContacto).PENDIENTE ? 'bg-warning' :
+                                             contacto.estado == T(com.miproyecto.ProyectoFinal.enums.EstadoContacto).EN_PROCESO ? 'bg-info' :
+                                             contacto.estado == T(com.miproyecto.ProyectoFinal.enums.EstadoContacto).RESPONDIDO ? 'bg-success' : 'bg-secondary')}"
+                                              th:text="${contacto.estado}"></span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a th:href="@{/admin/contactos/{id}(id=${contacto.id})}" 
+                                               class="btn btn-sm btn-outline-primary" 
+                                               title="Ver detalle">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            
+                                            <!-- Dropdown para cambiar estado -->
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                                                        data-bs-toggle="dropdown" title="Cambiar estado">
+                                                    <i class="bi bi-gear"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li th:each="estado : ${estados}">
+                                                        <form th:action="@{/admin/contactos/{id}/cambiar-estado(id=${contacto.id})}" 
+                                                              method="post" style="display: inline;">
+                                                            <input type="hidden" name="nuevoEstado" th:value="${estado}">
+                                                            <button type="submit" class="dropdown-item" 
+                                                                    th:disabled="${contacto.estado == estado}"
+                                                                    th:text="${estado}"></button>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            
+                                            <form th:action="@{/admin/contactos/{id}/eliminar(id=${contacto.id})}" 
+                                                  method="post" style="display: inline;"
+                                                  onsubmit="return confirm('¿Estás seguro de eliminar este contacto?')">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div th:if="${#lists.isEmpty(contactos)}" class="text-center py-4">
+                            <i class="bi bi-inbox fs-1 text-muted"></i>
+                            <p class="text-muted mt-2">No hay contactos para mostrar</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- Scripts -->
+<div th:replace="~{fragments/scripts :: common-scripts}"></div>
+
+</body>
+</html>

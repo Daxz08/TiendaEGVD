@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: common-head('Inicio')}"></head>
+<body class="bg-light">
+
+<style>
+  /* Navbar transparente sobre hero */
+  .navbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.1) !important;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+  }
+
+  /* Navbar sólido al hacer scroll */
+  .navbar.scrolled {
+    position: fixed;
+    background: rgba(255, 255, 255, 0.95) !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+
+  /* Ajustar texto del navbar en hero */
+  .navbar .navbar-brand,
+  .navbar .nav-link {
+    color: white !important;
+  }
+
+  .navbar .nav-link:hover {
+    color: #f8f9fa !important;
+  }
+
+  /* Botones del navbar */
+  .navbar .btn-outline-light {
+    border-color: white;
+    color: white;
+  }
+
+  .navbar .btn-outline-light:hover {
+    background-color: white;
+    color: #333;
+  }
+</style>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main>
+
+  <section class="hero-section text-white d-flex align-items-center" style="
+    height: 100vh;
+    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    position: relative;
+  ">
+    <div class="container text-center h-100 d-flex align-items-center justify-content-center">
+      <div class="hero-content">
+        <h1 class="display-1 fw-bold mb-4 text-shadow">EGVD Designs</h1>
+        <p class="lead fs-3 mb-4 text-shadow">Expresamos identidad y estilo a través del streetwear</p>
+        <p class="fs-5 mb-5 text-shadow">Descubre nuestra colección exclusiva</p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+          <a th:href="@{/productos/catalogo}" class="btn btn-light btn-lg px-4 py-3">
+            <i class="bi bi-shop me-2"></i> Ver Productos
+          </a>
+          <a th:href="@{/contacto}" class="btn btn-outline-light btn-lg px-4 py-3">
+            <i class="bi bi-envelope me-2"></i> Contáctanos
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+
+  <section class="py-5 bg-light">
+    <div class="container">
+      <div id="customCarousel" class="carousel slide" data-bs-ride="carousel">
+
+        <div class="carousel-indicators">
+          <button type="button" data-bs-target="#customCarousel" data-bs-slide-to="0" class="active"></button>
+          <button type="button" data-bs-target="#customCarousel" data-bs-slide-to="1"></button>
+          <button type="button" data-bs-target="#customCarousel" data-bs-slide-to="2"></button>
+        </div>
+
+        <div class="carousel-inner rounded shadow">
+
+          <div class="carousel-item active">
+            <div class="row align-items-center bg-white p-4" style="min-height: 400px;">
+              <div class="col-md-6 text-center">
+                <img th:src="@{/img/Slide1.png}"
+                     class="img-fluid rounded"
+                     alt="Sobre Nosotros"
+                     style="max-height: 350px; width: auto; object-fit: contain;"
+                     onerror="this.src='https://via.placeholder.com/400x350/6c757d/ffffff?text=EGVD+Designs'">
+              </div>
+              <div class="col-md-6">
+                <h2 class="display-6 fw-bold text-primary mb-3">Sobre Nosotros</h2>
+                <p class="lead">
+                  En EGVD Designs expresamos identidad y estilo a través del streetwear.
+                  Diseñamos prendas únicas que conectan con la autenticidad de cada persona.
+                  Somos una marca urbana creada para destacar en cada paso.
+                </p>
+                <a href="#" data-bs-toggle="modal" data-bs-target="#nosotrosModal" class="btn btn-primary btn-lg">
+                  <i class="bi bi-info-circle me-2"></i>Leer Más
+                </a>
+              </div>
+            </div>
+          </div>
+          <!-- Slide 2 - Productos -->
+          <div class="carousel-item">
+            <div class="row align-items-center bg-white p-4" style="min-height: 400px;">
+              <div class="col-md-6">
+                <h2 class="display-6 fw-bold text-success mb-3">Nuestros Productos</h2>
+                <p class="lead">
+                  Descubre nuestras prendas con diseños únicos y estilo urbano.
+                  Cada producto refleja la esencia de EGVD Designs: autenticidad y actitud.
+                  Renueva tu estilo con nuestras colecciones exclusivas de streetwear.
+                </p>
+                <a th:href="@{/productos/catalogo}" class="btn btn-success btn-lg">
+                  <i class="bi bi-shop me-2"></i>Explorar Catálogo
+                </a>
+              </div>
+              <div class="col-md-6 text-center">
+                <img th:src="@{/img/Modelo9-removebg-preview.png}"
+                     class="img-fluid rounded"
+                     alt="Productos"
+                     style="max-height: 350px; width: auto; object-fit: contain;"
+                     onerror="this.src='https://via.placeholder.com/400x350/28a745/ffffff?text=Productos'">
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 3 - Contacto -->
+          <div class="carousel-item">
+            <div class="row align-items-center bg-white p-4" style="min-height: 400px;">
+              <div class="col-md-6 text-center">
+                <img th:src="@{/img/aaas-removebg-preview.png}"
+                     class="img-fluid rounded"
+                     alt="Contacto"
+                     style="max-height: 350px; width: auto; object-fit: contain;"
+                     onerror="this.src='https://via.placeholder.com/400x350/17a2b8/ffffff?text=Contacto'">
+              </div>
+              <div class="col-md-6">
+                <h2 class="display-6 fw-bold text-info mb-3">Contáctanos</h2>
+                <p class="lead">
+                  ¿Tienes alguna pregunta o quieres conocer más sobre EGVD Designs?
+                  Estamos aquí para ayudarte. Contáctanos y únete a nuestra comunidad
+                  de streetwear auténtico.
+                </p>
+                <a th:href="@{/contacto}" class="btn btn-info btn-lg">
+                  <i class="bi bi-envelope me-2"></i>Contactar Ahora
+                </a>
+              </div>
+            </div>
+          </div>
+      </div>
+
+      <!-- Controles -->
+      <button class="carousel-control-prev" type="button" data-bs-target="#customCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#customCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+    </div>
+  </section>
+</main>
+
+<!-- Modal Nosotros (adicional) -->
+<div class="modal fade" id="nosotrosModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Sobre Nosotros</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Contenido detallado sobre tu marca...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<div th:replace="~{fragments/modals :: modals}"></div>
+<div th:replace="~{fragments/scripts :: common-scripts}"></div>
+
+<script>
+  // Cambiar navbar al hacer scroll
+  window.addEventListener('scroll', function() {
+    const navbar = document.querySelector('.navbar');
+    const heroSection = document.querySelector('.hero-section');
+
+    if (window.scrollY > heroSection.offsetHeight - 100) {
+      navbar.classList.add('scrolled');
+      // Cambiar colores para navbar sólido
+      navbar.querySelectorAll('.navbar-brand, .nav-link').forEach(el => {
+        el.style.color = '#333 !important';
+      });
+    } else {
+      navbar.classList.remove('scrolled');
+      // Restaurar colores para navbar transparente
+      navbar.querySelectorAll('.navbar-brand, .nav-link').forEach(el => {
+        el.style.color = 'white !important';
+      });
+    }
+  });
+</script>
+
+</body>
+</html>

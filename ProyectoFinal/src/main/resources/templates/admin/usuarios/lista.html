@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/head :: common-head('Gestión de Usuarios')}"></head>
+<body>
+
+<style>
+  .form-section {
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+  }
+
+  .table-section {
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+  }
+
+  .role-checkbox {
+    margin-bottom: 8px;
+  }
+
+  .badge {
+    font-size: 0.75em;
+  }
+</style>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container mt-4">
+  <h2 class="text-center mb-4">
+    <i class="bi bi-people"></i> Gestión de Usuarios
+  </h2>
+
+  <!-- Mensajes de éxito/error -->
+  <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <span th:text="${error}"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+
+  <div th:if="${exito}" class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle-fill"></i>
+    <span th:text="${exito}"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+
+  <!-- Formulario de Registro/Edición -->
+  <div class="row">
+    <div class="col-md-4">
+      <div class="form-section p-4">
+        <h3 class="mb-3">
+          <i class="bi bi-person-plus" th:if="${usuario.id == null}"></i>
+          <i class="bi bi-person-gear" th:if="${usuario.id != null}"></i>
+          <span th:text="${usuario.id != null} ? 'Editar Usuario' : 'Nuevo Usuario'"></span>
+        </h3>
+
+      <form th:action="@{${usuario.id != null} ? '/admin/usuarios/editar/' + ${usuario.id} : '/admin/usuarios/guardar'}"
+            th:object="${usuario}" method="post">
+
+        <input type="hidden" th:field="*{id}">
+
+        <div class="mb-3">
+          <label for="username" class="form-label">Nombre de Usuario</label>
+          <input type="text" id="username" th:field="*{username}" class="form-control">
+          <div class="text-danger" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+        </div>
+
+        <div class="mb-3">
+          <label for="nombre" class="form-label">Nombre</label>
+          <input type="text" id="nombre" th:field="*{nombre}" class="form-control">
+          <div class="text-danger" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+        </div>
+
+        <div class="mb-3">
+          <label for="email" class="form-label">Correo Electrónico</label>
+          <input type="email" id="email" th:field="*{email}" class="form-control">
+          <div class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+        </div>
+
+        <div class="mb-3">
+          <label for="celular" class="form-label">Celular</label>
+          <input type="text" id="celular" th:field="*{celular}" class="form-control">
+          <div class="text-danger" th:if="${#fields.hasErrors('celular')}" th:errors="*{celular}"></div>
+        </div>
+
+        <div class="mb-3">
+          <label for="password" class="form-label">Contraseña</label>
+          <input type="password" id="password" th:field="*{password}" class="form-control"
+                 th:placeholder="${usuario.id != null} ? 'Dejar vacío para mantener actual' : 'Ingrese contraseña'">
+          <div class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+          <small class="form-text text-muted" th:if="${usuario.id != null}">
+            Dejar vacío para mantener la contraseña actual
+          </small>
+        </div>
+
+        <!-- Selector de Roles -->
+        <div class="mb-3">
+          <label class="form-label">
+            <i class="bi bi-person-gear"></i> Roles
+          </label>
+          <div class="border rounded p-3 bg-light">
+            <div th:each="rol : ${allRoles}" class="form-check">
+              <input class="form-check-input"
+                     type="checkbox"
+                     th:id="${'rol_' + rol.id}"
+                     th:field="*{roles}"
+                     th:value="${rol.id}">
+              <label class="form-check-label" th:for="${'rol_' + rol.id}">
+                <span th:switch="${rol.name.name()}">
+                  <span th:case="'ROLE_ADMIN'" class="badge bg-danger">
+                    <i class="bi bi-shield-check"></i> Administrador
+                  </span>
+                  <span th:case="'ROLE_USUARIO'" class="badge bg-primary">
+                    <i class="bi bi-person"></i> Usuario
+                  </span>
+                  <span th:case="*" class="badge bg-secondary" th:text="${rol.name.name()}">Otro</span>
+                </span>
+              </label>
+            </div>
+          </div>
+          <div class="text-danger" th:if="${#fields.hasErrors('roles')}" th:errors="*{roles}"></div>
+        </div>
+
+        <div class="d-grid gap-2">
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-save"></i> Guardar Usuario
+          </button>
+
+          <a th:href="@{/admin/usuarios}" class="btn btn-outline-secondary">
+            <i class="bi bi-x-circle"></i> Cancelar
+          </a>
+        </div>
+      </form>
+      </div>
+    </div>
+
+    <!-- Tabla de Usuarios -->
+    <div class="col-md-8">
+      <div class="table-section p-4">
+        <h3 class="mb-3">
+          <i class="bi bi-table"></i> Lista de Usuarios
+        </h3>
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead class="table-dark">
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Celular</th>
+            <th>Roles</th>
+            <th>Acciones</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="user : ${usuarios}">
+            <td>
+              <span class="badge bg-secondary" th:text="${user.id}"></span>
+            </td>
+            <td>
+              <strong th:text="${user.username}"></strong>
+            </td>
+            <td th:text="${user.nombre}"></td>
+            <td>
+              <small th:text="${user.email}"></small>
+            </td>
+            <td>
+              <span th:if="${user.celular}" th:text="${user.celular}"></span>
+              <span th:unless="${user.celular}" class="text-muted">-</span>
+            </td>
+            <td>
+              <div th:each="rol : ${user.roles}">
+                <span th:switch="${rol.name.name()}" class="badge me-1">
+                  <span th:case="'ROLE_ADMIN'" class="badge bg-danger">
+                    <i class="bi bi-shield-check"></i> Admin
+                  </span>
+                  <span th:case="'ROLE_USUARIO'" class="badge bg-primary">
+                    <i class="bi bi-person"></i> Usuario
+                  </span>
+                  <span th:case="*" class="badge bg-secondary" th:text="${rol.name.name()}">Otro</span>
+                </span>
+              </div>
+              <span th:if="${user.roles.empty}" class="text-muted">Sin roles</span>
+            </td>
+            <td>
+              <div class="btn-group" role="group">
+                <a th:href="@{/admin/usuarios/editar/{id}(id=${user.id})}"
+                   class="btn btn-warning btn-sm"
+                   title="Editar usuario">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                <a th:href="@{/admin/usuarios/eliminar/{id}(id=${user.id})}"
+                   class="btn btn-danger btn-sm"
+                   title="Eliminar usuario"
+                   onclick="return confirm('¿Estás seguro de eliminar este usuario?')">
+                  <i class="bi bi-trash"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

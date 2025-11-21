@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/head :: common-head('Mi Perfil')}"></head>
+<body>
+
+<style>
+    .perfil-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        color: white;
+    }
+    
+    .perfil-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .perfil-card:hover {
+        transform: translateY(-2px);
+    }
+    
+    .avatar-placeholder {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 3rem;
+        font-weight: bold;
+        margin: 0 auto 20px;
+    }
+    
+    .info-item {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-left: 4px solid #007bff;
+    }
+    
+    .btn-perfil {
+        border-radius: 25px;
+        padding: 10px 25px;
+        font-weight: 500;
+    }
+</style>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header del perfil -->
+            <div class="perfil-header p-4 mb-4">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h2 class="mb-2">
+                            <i class="bi bi-person-circle me-2"></i>Mi Perfil
+                        </h2>
+                        <p class="mb-0">Gestiona tu información personal y configuración de cuenta</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <span class="badge bg-light text-dark fs-6">
+                            <i class="bi bi-shield-check me-1"></i>Cuenta Verificada
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mensajes de éxito/error -->
+            <div th:if="${mensaje}" 
+                 th:class="${'alert alert-' + (tipoMensaje == 'success' ? 'success' : 'danger') + ' alert-dismissible fade show'}" 
+                 role="alert">
+                <span th:text="${mensaje}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div class="row">
+                <!-- Información del perfil -->
+                <div class="col-lg-4 mb-4">
+                    <div class="perfil-card p-4 text-center">
+                        <!-- Avatar -->
+                        <div class="avatar-placeholder">
+                            <span th:text="${#strings.substring(usuario.nombre ?: usuario.username, 0, 1).toUpperCase()}">U</span>
+                        </div>
+                        
+                        <h4 th:text="${usuario.nombre ?: usuario.username}">Nombre Usuario</h4>
+                        <p class="text-muted mb-3" th:text="'@' + ${usuario.username}">@username</p>
+                        
+                        <!-- Información básica -->
+                        <div class="info-item text-start">
+                            <strong>Email:</strong><br>
+                            <span th:text="${usuario.email}">email@ejemplo.com</span>
+                        </div>
+
+                        <div class="info-item text-start" th:if="${usuario.celular}">
+                            <strong>Celular:</strong><br>
+                            <span th:text="${usuario.celular}">987654321</span>
+                        </div>
+
+                        <div class="info-item text-start">
+                            <strong>Rol:</strong><br>
+                            <span class="badge bg-primary" th:text="${usuario.rol}">USER</span>
+                        </div>
+
+                        <div class="info-item text-start">
+                            <strong>Miembro desde:</strong><br>
+                            <span th:text="${#temporals.format(usuario.fechaRegistro, 'dd/MM/yyyy')}">01/01/2024</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formularios de edición -->
+                <div class="col-lg-8">
+                    <!-- Editar información personal -->
+                    <div class="perfil-card p-4 mb-4">
+                        <h5 class="mb-4">
+                            <i class="bi bi-person-gear me-2"></i>Información Personal
+                        </h5>
+                        
+                        <form th:action="@{/perfil/actualizar}" method="post" th:object="${usuario}">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="username" class="form-label">Nombre de Usuario</label>
+                                    <input type="text" class="form-control" id="username" 
+                                           th:field="*{username}" required>
+                                    <div th:if="${#fields.hasErrors('username')}" 
+                                         class="text-danger small" th:errors="*{username}"></div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="email" 
+                                           th:field="*{email}" required>
+                                    <div th:if="${#fields.hasErrors('email')}" 
+                                         class="text-danger small" th:errors="*{email}"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="nombre" class="form-label">Nombre Completo</label>
+                                    <input type="text" class="form-control" id="nombre"
+                                           th:field="*{nombre}" required>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label for="celular" class="form-label">Celular</label>
+                                    <input type="tel" class="form-control" id="celular"
+                                           th:field="*{celular}" placeholder="Ej: 987654321">
+                                </div>
+                            </div>
+                            
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary btn-perfil">
+                                    <i class="bi bi-check-circle me-1"></i>Actualizar Información
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Cambiar contraseña -->
+                    <div class="perfil-card p-4">
+                        <h5 class="mb-4">
+                            <i class="bi bi-shield-lock me-2"></i>Cambiar Contraseña
+                        </h5>
+                        
+                        <form th:action="@{/perfil/cambiar-password}" method="post">
+                            <div class="mb-3">
+                                <label for="passwordActual" class="form-label">Contraseña Actual</label>
+                                <input type="password" class="form-control" id="passwordActual" 
+                                       name="passwordActual" required>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="nuevaPassword" class="form-label">Nueva Contraseña</label>
+                                    <input type="password" class="form-control" id="nuevaPassword" 
+                                           name="nuevaPassword" required minlength="6">
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="confirmarPassword" class="form-label">Confirmar Nueva Contraseña</label>
+                                    <input type="password" class="form-control" id="confirmarPassword" 
+                                           name="confirmarPassword" required minlength="6">
+                                </div>
+                            </div>
+                            
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-warning btn-perfil">
+                                    <i class="bi bi-key me-1"></i>Cambiar Contraseña
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- Scripts -->
+<div th:replace="~{fragments/scripts :: common-scripts}"></div>
+
+<script>
+    // Validar que las contraseñas coincidan
+    document.getElementById('confirmarPassword').addEventListener('input', function() {
+        const nuevaPassword = document.getElementById('nuevaPassword').value;
+        const confirmarPassword = this.value;
+        
+        if (nuevaPassword !== confirmarPassword) {
+            this.setCustomValidity('Las contraseñas no coinciden');
+        } else {
+            this.setCustomValidity('');
+        }
+    });
+</script>
+
+</body>
+</html>
